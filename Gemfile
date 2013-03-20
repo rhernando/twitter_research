@@ -7,7 +7,14 @@ gem 'rails', '3.2.8'
 
 gem 'sqlite3'
 
+gem 'mongoid'
+gem 'bson_ext'
+
+gem 'devise'
+gem 'omniauth-twitter'
+
 gem 'twitter'
+gem 'tweetstream'
 
 # Gems used only for assets and not required
 # in production environments by default.
@@ -20,6 +27,8 @@ group :assets do
 
   gem 'uglifier', '>= 1.0.3'
 end
+
+gem "haml-rails"
 
 gem 'jquery-rails'
 
