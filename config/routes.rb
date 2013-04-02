@@ -4,8 +4,12 @@ TwitterResearch::Application.routes.draw do
   #devise_for :users
 
   devise_for :users, :controllers => { :omniauth_callbacks => "users/omniauth_callbacks" }
+  #match '/auth/:provider/callback' => 'users/omniauth_callbacks#passthru'
+  devise_scope :user do
+    get '/users/auth/:provider' => 'users/omniauth_callbacks#passthru'
+  end
 
-  match '/users' => 'home#index'
+  #match '/users' => 'home#index'
 
   # The priority is based upon order of creation:
   # first created -> highest priority.

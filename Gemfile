@@ -9,6 +9,7 @@ gem 'sqlite3'
 
 gem 'mongoid'
 gem 'bson_ext'
+gem "mongo_session_store-rails3"
 
 gem 'devise'
 gem 'omniauth-twitter'
