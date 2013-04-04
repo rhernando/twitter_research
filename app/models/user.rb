@@ -4,13 +4,13 @@ class User
   # :token_authenticatable, :confirmable,
   # :lockable, :timeoutable and :omniauthable
   devise :database_authenticatable, :registerable,
-         :recoverable, :rememberable, :trackable, :validatable,
+         :recoverable, :rememberable, :trackable, #:validatable,
          :omniauthable,
          :omniauth_providers => [:twitter]
 
 
   ## Database authenticatable
-  field :email,              :type => String, :default => ""
+  field :email,              :type => String
   field :encrypted_password, :type => String, :default => ""
   
   ## Recoverable
@@ -47,14 +47,24 @@ class User
   # field :authentication_token, :type => String
 
   def self.find_for_twitter_oauth(auth, signed_in_resource=nil)
+    p 'in user'
+    p auth
     user = User.where(:provider => auth.provider, :uid => auth.uid).first
+    p 'exist'
+    p user
+    p auth.info.screen_name
+    p auth.extra.raw_info.screen_name
     unless user
       user = User.create(name:auth.extra.raw_info.name,
                          provider:auth.provider,
                          uid:auth.uid,
-                         email:auth.info.email,
+                         email:auth.info.email || auth.extra.raw_info.screen_name,
                          password:Devise.friendly_token[0,20]
       )
+
+      user.save
+      p user.valid?
+      p user.errors
     end
     user
   end
