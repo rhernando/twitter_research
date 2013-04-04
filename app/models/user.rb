@@ -77,5 +77,8 @@ class User
     end
   end
 
-
+  def user_timeline
+    UserPreferences.load_timeline self
+  end
+  handle_asynchronously :user_timeline
 end

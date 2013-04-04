@@ -12,6 +12,7 @@ TwitterResearch::Application.routes.draw do
     get 'sign_out', :to => 'devise/sessions#destroy', :as => :destroy_user_session
   end
 
+  mount DjMon::Engine => 'dj_mon'
   #match '/users' => 'home#index'
 
   # The priority is based upon order of creation:
