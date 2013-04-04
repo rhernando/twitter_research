@@ -8,15 +8,19 @@ module UserPreferences
 
     tl = nil
     begin
-      params = {:include_retweets => true, :count => 800, :since_id => last_id}
 
       num_attempts = 0
       begin
         num_attempts += 1
-        tl = Twitter.home_timeline params.delete_if { |k, v| v.blank? }
-        tl.each do |tweet|
-          tweet.urls.each do |u|
-            insert_url u
+        params = {:include_rts => true, :count => 800, :since_id => last_id}
+        p params
+        tl = Twitter.user_timeline user.uid.to_i, params.delete_if { |k, v| v.blank? || k == :screen_name }
+        if tl.present?
+          last_id = tl.first.id
+          tl.each do |tweet|
+            tweet.urls.each do |u|
+              insert_url u, tweet
+            end
           end
         end
       rescue Twitter::Error::TooManyRequests => error
@@ -30,8 +34,8 @@ module UserPreferences
     end while tl.present?
   end
 
-  def self.insert_url(url)
-    us = UserSources.new(:url => url.expanded_url)
+  def self.insert_url(url, tweet)
+    us = UserSources.new(:url => url.expanded_url, :id_tweet => tweet.id)
     us.save
   end
 
