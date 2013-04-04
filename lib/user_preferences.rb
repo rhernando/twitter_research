@@ -1,4 +1,6 @@
 module UserPreferences
+  require 'open-uri'
+
 
   MAX_TWEETS = 800
   MAX_ATTEMPTS = 3
@@ -35,7 +37,10 @@ module UserPreferences
   end
 
   def self.insert_url(url, tweet)
-    us = UserSources.new(:url => url.expanded_url, :id_tweet => tweet.id)
+    uri = URI.parse(url.expanded_url)
+    doc = Nokogiri::HTML(open(url))
+
+    us = UserSources.new(:url => url.expanded_url, :id_tweet => tweet.id, :source => uri.host.downcase)
     us.save
   end
 
