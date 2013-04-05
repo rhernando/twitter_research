@@ -1,6 +1,7 @@
 module UserPreferences
   require 'open-uri'
 
+  spotlight = DBpedia::Spotlight("http://spotlight.dbpedia.org/rest/")
 
   MAX_TWEETS = 800
   MAX_ATTEMPTS = 3
@@ -38,7 +39,17 @@ module UserPreferences
 
   def self.insert_url(url, tweet)
     uri = URI.parse(url.expanded_url)
-    doc = Nokogiri::HTML(open(url))
+    doc = Pismo::Document.new url
+
+    #only if needed
+    spotlight.class.http_proxy '194.140.11.77', 80
+
+    entities = spotlight.annotate doc.title + ' ' + doc.body
+
+    arr_ents = []
+    entities.each do |ent|
+      new_ent = {:name => }
+    end
 
     us = UserSources.new(:url => url.expanded_url, :id_tweet => tweet.id, :source => uri.host.downcase)
     us.save
