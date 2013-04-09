@@ -77,8 +77,9 @@ class User
     end
   end
 
+  ## call job in background
   def user_timeline
     UserPreferences.load_timeline self
   end
-  handle_asynchronously :user_timeline
+  #handle_asynchronously :user_timeline
 end

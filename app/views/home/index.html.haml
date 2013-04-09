@@ -4,4 +4,4 @@
 = link_to "Sign in with Twitter", user_omniauth_authorize_path(:twitter)
 %p
   = current_user.inspect
-  = current_user.user_timeline
+  = current_user.user_timeline if current_user.present?

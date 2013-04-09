@@ -7,24 +7,32 @@ gem 'rails', '3.2.8'
 
 gem 'sqlite3'
 
+# using mongoDB
 gem 'mongoid'
 gem 'bson_ext'
+# store session in mongoDB
 gem "mongo_session_store-rails3"
 
+# authentification with twitter
 gem 'devise'
 gem 'omniauth-twitter'
 
+# retrieve tweets
 gem 'twitter'
 gem 'tweetstream'
 
+# background jobs
 gem 'delayed_job_mongoid'
 gem 'dj_mon'
 
-gem 'nokogiri'
+# annotate text with dbpedia to get entties
 gem 'dbpedia-spotlight', :git => 'https://github.com/fumi/dbpedia-spotlight-rb.git'
 
+# retrieve text content of a page (url)
 gem 'pismo'
 
+# read RSS feeds
+gem 'feedzirra'
 
 # Gems used only for assets and not required
 # in production environments by default.
