@@ -29,8 +29,9 @@ module UserPreferences
           tl.each do |tweet|
             tweet.urls.each do |u|
               begin
-                insert_url u, tweet
-              rescue => e
+                us = UserSources.where(:id_tweet => tweet.id).first
+                insert_url(u, tweet) unless us.present?
+              rescue RuntimeError => e
                 Rails.logger.warn "La url #{u.expanded_url} no es accesible. #{e}"
               end
             end
@@ -66,39 +67,24 @@ module UserPreferences
       sf.save
     end
 
-
     us = UserSources.new(:url => url.expanded_url, :id_tweet => tweet.id, :source => uri.host.downcase, :tags => arr_ents)
     us.save
-  end
-
-  ## check into news from sources and store tags
-  def update_news
-    SourceFeeds.all.each do |sf|
-      feed = Feedzirra::Feed.fetch_and_parse(sf.feed_url)
-      feed.entries.each do |entry|
-        news = LastNews.new(:source => sf.base_url, :url => entry.url)
-        doc = Pismo::Document.new entry.url
-        arr_ents = tags_from_entities(entities_from_document(doc))
-        news.tags = arr_ents
-
-        news.save
-      end
-    end
 
   end
+
 
   ## rest petition to DBpedia spotlight to annotate document content
-  def entities_from_document(doc)
+  def self.entities_from_document(doc)
 
     #only if needed
-    SPOTLIGHT_ACCESS.class.http_proxy '194.140.11.77', 80
+    #SPOTLIGHT_ACCESS.class.http_proxy '194.140.11.77', 80
 
-    body_text = doc.title + ' ' + doc.body
+    body_text = (doc.title || '') + ' ' + doc.body
 
-    body_text.present? ? SPOTLIGHT_ACCESS.annotate body_text[0, MAX_LENGTH_DBS] : []
+    body_text.present? ? (SPOTLIGHT_ACCESS.annotate body_text[0, MAX_LENGTH_DBS]) : []
   end
 
-  def tags_from_entities(entities)
+  def self.tags_from_entities(entities)
     arr_ents = []
 
     entities.each do |ent|

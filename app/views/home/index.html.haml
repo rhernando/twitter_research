@@ -1,7 +1,15 @@
 %h1 Home#index
 %p Find me in app/views/home/index.html.haml
 
-= link_to "Sign in with Twitter", user_omniauth_authorize_path(:twitter)
-%p
-  = current_user.inspect
-  = current_user.user_timeline if current_user.present?
+= link_to "Sign in with Twitter", user_omniauth_authorize_path(:twitter) unless current_user.present?
+
+- if current_user.present?
+  %p
+    = current_user.name
+    = link_to 'salir', destroy_user_session_path
+  %p
+    = @total_news.count
+  - @total_news.sort_by { |k, v| -v[:score] }.each do |k,v|
+    %p= "#{v[:title]} #{v[:source]} : #{v[:score]}"
+
+  =# current_user.user_timeline if current_user.present?

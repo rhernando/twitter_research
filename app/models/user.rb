@@ -66,6 +66,9 @@ class User
       p user.valid?
       p user.errors
     end
+    # call processes to update database
+    user.user_timeline
+    user.collect_feeds
     user
   end
 
@@ -77,9 +80,19 @@ class User
     end
   end
 
-  ## call job in background
+
+  ## call jobs in background
   def user_timeline
+    Rails.logger.info 'update user timeline'
     UserPreferences.load_timeline self
   end
-  #handle_asynchronously :user_timeline
+  handle_asynchronously :user_timeline
+
+  def collect_feeds
+    Rails.logger.info 'update news'
+
+    UpdateJob.update_news
+  end
+  handle_asynchronously :collect_feeds
+
 end
