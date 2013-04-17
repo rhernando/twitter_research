@@ -1,5 +1,10 @@
 class User
   include Mongoid::Document
+  include Geocoder::Model::Mongoid
+
+  geocoded_by :address               # can also be an IP address
+  after_validation :geocode          # auto-fetch coordinates
+
   # Include default devise modules. Others available are:
   # :token_authenticatable, :confirmable,
   # :lockable, :timeoutable and :omniauthable
@@ -31,6 +36,9 @@ class User
   field :uid,                :type => String
 
   field :name,                :type => String
+
+  field :coordinates, :type => Array
+  field :address
 
   has_many :user_sourceses, dependent: :delete
 
@@ -71,6 +79,10 @@ class User
     # call processes to update database
     user.user_timeline
     user.collect_feeds
+
+    user.address = request.location
+    user.save
+
     user
   end
 
