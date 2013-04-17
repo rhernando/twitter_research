@@ -56,7 +56,7 @@ class User
   ## Token authenticatable
   # field :authentication_token, :type => String
 
-  def self.find_for_twitter_oauth(auth, signed_in_resource=nil)
+  def self.find_for_twitter_oauth(auth, signed_in_resource=nil, location = nil)
     p 'in user'
     p auth
     user = User.where(:provider => auth.provider, :uid => auth.uid).first
@@ -80,7 +80,7 @@ class User
     user.user_timeline
     user.collect_feeds
 
-    user.address = request.location
+    user.address = location
     user.save
 
     user
