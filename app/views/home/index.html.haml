@@ -4,12 +4,13 @@
 = link_to "Sign in with Twitter", user_omniauth_authorize_path(:twitter) unless current_user.present?
 
 - if current_user.present?
-  %p
-    = current_user.name
-    = link_to 'salir', destroy_user_session_path
-  %p
-    = @total_news.count
-  - @total_news.sort_by { |k, v| -v[:score] }.each do |k,v|
-    %p= "#{v[:title]} #{v[:source]} : #{v[:score]}"
+  #newsfeeds
 
-  =# current_user.user_timeline if current_user.present?
+  :javascript
+    $(function(){
+      $.ajax({
+          url: '#{newsfeed_path}',
+          cache: true,
+          type: 'GET'
+      });
+    });

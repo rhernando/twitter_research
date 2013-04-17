@@ -13,7 +13,7 @@ module UserPreferences
   ## for each URL, it requests the page content and call DBpedia Spotlight to annottate tags
   ## then it saves tags into user preferences
   def self.load_timeline(user)
-    last_id = nil
+    last_id = user.user_sourceses.last.try(:id_tweet)
 
     tl = nil
     begin
@@ -30,7 +30,7 @@ module UserPreferences
             tweet.urls.each do |u|
               begin
                 us = UserSources.where(:id_tweet => tweet.id).first
-                insert_url(u, tweet) unless us.present?
+                insert_url(u, tweet,user) unless us.present?
               rescue RuntimeError => e
                 Rails.logger.warn "La url #{u.expanded_url} no es accesible. #{e}"
               end
@@ -50,7 +50,7 @@ module UserPreferences
 
   ## given a url, it retrieves tags and store them as user topics
   ## it also stores URL as a preferred source for the user
-  def self.insert_url(url, tweet)
+  def self.insert_url(url, tweet,user)
     uri = URI.parse(url.expanded_url)
 
     doc = Pismo::Document.new url.expanded_url
@@ -59,7 +59,9 @@ module UserPreferences
 
     # call dbpedia spottlight to retrieve tags
     # we use first 4000 chars because of the capacity limit of the url in rest services
-    arr_ents = tags_from_entities(entities)
+    arr_ents = tags_from_entities(entities) || []
+
+    arr_ents += doc.keywords.map{|x| x.first if x.first.length > 3}.compact
 
     sf = SourceFeeds.find_or_create_by(:base_url => uri.host.downcase)
     if sf.feed_url.blank? && doc.feed.present?
@@ -67,7 +69,7 @@ module UserPreferences
       sf.save
     end
 
-    us = UserSources.new(:url => url.expanded_url, :id_tweet => tweet.id, :source => uri.host.downcase, :tags => arr_ents)
+    us = UserSources.new(:url => url.expanded_url, :id_tweet => tweet.id, :source => uri.host.downcase, :tags => arr_ents, :user => user)
     us.save
 
   end
@@ -77,7 +79,7 @@ module UserPreferences
   def self.entities_from_document(doc)
 
     #only if needed
-    #SPOTLIGHT_ACCESS.class.http_proxy '194.140.11.77', 80
+    SPOTLIGHT_ACCESS.class.http_proxy '194.140.11.77', 80
 
     body_text = (doc.title || '') + ' ' + doc.body
 
@@ -87,13 +89,15 @@ module UserPreferences
   def self.tags_from_entities(entities)
     arr_ents = []
 
-    entities.each do |ent|
-      ent_type = ent["@types"].split(',').present? ? ent["@types"].split(',').first.split(':').last : nil
-      # every entity has types and surfaceForm. we store first type and surfaceForm
-      new_ent = {:name => ent["@surfaceForm"], :type => ent_type}
+    if entities.present?
+      entities.each do |ent|
+        ent_type = ent["@types"].split(',').present? ? ent["@types"].split(',').first.split(':').last : nil
+        # every entity has types and surfaceForm. we store first type and surfaceForm
+        new_ent = {:name => ent["@surfaceForm"], :type => ent_type}
 
-      arr_ents << new_ent
+        arr_ents << new_ent
+      end
+      arr_ents
     end
-    arr_ents
   end
 end

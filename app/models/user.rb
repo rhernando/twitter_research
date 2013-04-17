@@ -32,6 +32,8 @@ class User
 
   field :name,                :type => String
 
+  has_many :user_sourceses, dependent: :delete
+
   ## Confirmable
   # field :confirmation_token,   :type => String
   # field :confirmed_at,         :type => Time
@@ -80,6 +82,14 @@ class User
     end
   end
 
+
+  def array_sources
+    arr_news = []
+    self.user_sourceses.each do |us|
+      arr_news += LastNews.where(:date_publish.gte => 30.days.ago).any_in(tags: us.tags)
+    end
+    arr_news
+  end
 
   ## call jobs in background
   def user_timeline

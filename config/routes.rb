@@ -1,5 +1,6 @@
 TwitterResearch::Application.routes.draw do
   get "home/index"
+  match "home/news" => "home#get_news", :as => :newsfeed
 
   #devise_for :users
 

@@ -1,0 +1,31 @@
+
+//$navbarBackground: #6d9f6c;
+//$navbarBackgroundHighlight: #3c632d;
+//$bodyBackground: #e5f7ce;
+
+//$textColor: black;
+
+//$linkColor: #08c;
+//$linkColorHover:darken($linkColor, 15%);
+
+//$navbarHeight: 50px;
+//$navbarBackground: #6d9f6c;
+
+
+
+//$navbarLinkColor: #FFFFFF;
+//$navbarLinkColorHover: #FFBA73;
+//$navbarLinkColorActive: #A65400;
+
+//$inputBackground: #FFFFFF;
+//$inputBorder: #025167;
+//$inputDisabledBackground:       $grayLighter !default;
+//$formActionsBackground: #FFBA73;
+
+
+@import "bootstrap";
+body { padding-top: 50px; }
+
+
+@import "bootstrap-responsive";
+

@@ -46,9 +46,13 @@ group :assets do
   gem 'uglifier', '>= 1.0.3'
 end
 
+gem 'jquery-rails'
+gem 'jquery-ui-rails'
 gem "haml-rails"
 
-gem 'jquery-rails'
+# twitter layout and styles
+gem 'bootstrap-sass'
+
 
 # To use ActiveModel has_secure_password
 # gem 'bcrypt-ruby', '~> 3.0.0'

@@ -1,6 +1,8 @@
 class UserSources
   include Mongoid::Document
 
+  belongs_to :user
+
   field :url, type: String
   field :source, type: String
 

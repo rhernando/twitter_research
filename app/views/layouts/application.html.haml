@@ -1,9 +1,31 @@
 !!!
 %html
   %head
-    %title TwitterResearch
-    = stylesheet_link_tag    "application", :media => "all"
+    %meta{:charset => "utf-8"}
+    %meta{:name => "viewport", :content => "width=device-width, initial-scale=1, maximum-scale=1"}
+    %title= content_for?(:title) ? yield(:title) : "TwitterResearch"
+    %meta{:content => "", :name => "description"}
+    %meta{:content => "", :name => "author"}
+    = stylesheet_link_tag "application", :media => "all"
     = javascript_include_tag "application"
     = csrf_meta_tags
+    = yield(:head)
   %body
-    = yield
+    %header.navbar.navbar-inverse.navbar-fixed-top
+      %nav.navbar-inner
+        .container-fluid
+          = render 'layouts/navigation'
+    #main{:role => "main"}
+      .container-fluid
+        .row-fluid
+          .span3
+            .well.sidebar-nav
+              = render 'layouts/aside'
+          .span8
+            = render 'layouts/messages'
+            = yield
+        %hr
+        %footer
+          %p
+            %small
+              Master I2TIC (2013)
