@@ -39,6 +39,7 @@ class User
 
   field :coordinates, :type => Array
   field :ip_address
+  field :address, :type => String
 
   has_many :user_sourceses, dependent: :delete
 
@@ -60,10 +61,7 @@ class User
     p 'in user'
     p auth
     user = User.where(:provider => auth.provider, :uid => auth.uid).first
-    p 'exist'
-    p user
-    p auth.info.screen_name
-    p auth.extra.raw_info.screen_name
+
     unless user
       user = User.create(name:auth.extra.raw_info.name,
                          provider:auth.provider,
@@ -73,14 +71,14 @@ class User
       )
 
       user.save
-      p user.valid?
-      p user.errors
     end
     # call processes to update database
     user.user_timeline
     user.collect_feeds
 
-    user.ip_address =  location == "127.0.0.1"? "173.194.34.195" : location
+    user.ip_address =  location == "127.0.0.1"? "150.244.56.51" : location
+    new_address = Geocoder.search(user.ip_address).first.try(:address)
+    user.address = new_address if new_address.present?
 
     user.save
 

@@ -1,1 +1,16 @@
-= current_user.name if current_user
+%p
+  = current_user.name if current_user.present?
+
+- if @trends.present?
+  - @trends.each do |t|
+    %p=t
+
+-if current_user.present?
+  :javascript
+    $(function(){
+      $.ajax({
+          url: '#{trends_path}',
+          cache: true,
+          type: 'GET'
+      });
+    });

@@ -1,7 +1,7 @@
 Geocoder.configure(
     # geocoding options
     :timeout => 10, # geocoding service timeout (secs)
-    # :lookup       => :google,     # name of geocoding service (symbol)
+    :lookup       => :google,     # name of geocoding service (symbol)
     :language => :es, # ISO-639 language code
     # :use_https    => false,       # use HTTPS for lookup requests? (if supported)
     :http_proxy => "194.140.11.77:80", # HTTP proxy server (user:pass@host:port)
@@ -19,3 +19,7 @@ Geocoder.configure(
     :units => :km # :km for kilometers or :mi for miles
     # :distances => :linear    # :spherical or :linear
 )
+
+
+RestClient.proxy = "http://194.140.11.77:80/"
+GeoPlanet.appid = 'XV0TZjzV34EExBNdyzE6i4YYdCReYURnhNCbYAnK69As55t1kvTdWHsXo6zIKTG90FzuW_g-'
