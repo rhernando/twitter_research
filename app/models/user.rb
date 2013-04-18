@@ -2,7 +2,7 @@ class User
   include Mongoid::Document
   include Geocoder::Model::Mongoid
 
-  geocoded_by :address               # can also be an IP address
+  geocoded_by :ip_address               # can also be an IP address
   after_validation :geocode          # auto-fetch coordinates
 
   # Include default devise modules. Others available are:
@@ -38,7 +38,7 @@ class User
   field :name,                :type => String
 
   field :coordinates, :type => Array
-  field :address
+  field :ip_address
 
   has_many :user_sourceses, dependent: :delete
 
@@ -80,7 +80,8 @@ class User
     user.user_timeline
     user.collect_feeds
 
-    user.address = location
+    user.ip_address =  location == "127.0.0.1"? "173.194.34.195" : location
+
     user.save
 
     user

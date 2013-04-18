@@ -12,7 +12,7 @@ class Users::OmniauthCallbacksController < Devise::OmniauthCallbacksController
     p request.env["omniauth.auth"]
     p request.env["omniauth.auth"].keys
     # You need to implement the method below in your model (e.g. app/models/user.rb)
-    @user = User.find_for_twitter_oauth(request.env["omniauth.auth"], current_user, request.location)
+    @user = User.find_for_twitter_oauth(request.env["omniauth.auth"], current_user, request.remote_ip)
 
     if !@user.persisted?
 
