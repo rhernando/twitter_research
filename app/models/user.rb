@@ -72,9 +72,6 @@ class User
 
       user.save
     end
-    # call processes to update database
-    user.user_timeline
-    user.collect_feeds
 
     user.ip_address = location == "127.0.0.1" ? "150.244.56.51" : location
     new_address = Geocoder.search(user.ip_address).first.try(:address)
@@ -99,26 +96,8 @@ class User
     self.user_sourceses.each do |us|
       arr_news += LastNews.where(:date_publish.gte => 2.days.ago).any_in(tags: us.tags)
     end
-    if arr_news.blank?
-      self.user_timeline
-      self.collect_feeds
-    end
 
     arr_news
   end
-
-  ## call jobs in background
-  def user_timeline
-    Rails.logger.info 'update user timeline'
-    UserPreferences.load_timeline self
-  end
-  handle_asynchronously :user_timeline
-
-  def collect_feeds
-    Rails.logger.info 'update news'
-
-    UpdateJob.update_news
-  end
-  handle_asynchronously :collect_feeds
 
 end

@@ -22,8 +22,9 @@ gem 'twitter'
 gem 'tweetstream'
 
 # background jobs
-gem 'delayed_job_mongoid'
-gem 'dj_mon'
+gem 'resque'
+#queueing items in the future
+gem 'resque-scheduler', :require => 'resque_scheduler'
 
 # annotate text with dbpedia to get entties
 gem 'dbpedia-spotlight', :git => 'https://github.com/fumi/dbpedia-spotlight-rb.git'

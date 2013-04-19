@@ -14,17 +14,19 @@ module UpdateJob
       sf.title = feed.title rescue nil
       sf.save
       Rails.logger.info sf.feed_url
-      feed.entries.each do |entry|
-        news = LastNews.where(:url => entry.url).first
-        if news.blank?
-          news = LastNews.new(:source => sf.base_url, :url => entry.url, :date_publish => entry.published, :title => entry.title)
-          doc = Pismo::Document.new entry.url
-          arr_ents = UserPreferences.tags_from_entities(UserPreferences.entities_from_document(doc)) || []
-          news.tags = arr_ents + doc.keywords.map{|x| x.first if x.first.length > 3}.compact
+      if (feed.try(:entries) rescue nil).present?
+        feed.entries.each do |entry|
+          news = LastNews.where(:url => entry.url).first
+          if news.blank?
+            news = LastNews.new(:source => sf.base_url, :url => entry.url, :date_publish => entry.published, :title => entry.title)
+            doc = Pismo::Document.new entry.url
+            arr_ents = UserPreferences.tags_from_entities(UserPreferences.entities_from_document(doc)) || []
+            news.tags = arr_ents + doc.keywords.map { |x| x.first if x.first.length > 3 }.compact
 
-          news.save
+            news.save
+          end
+
         end
-
       end
     end
 
