@@ -3,9 +3,9 @@
 
 - if @trends.present?
   - @trends.each do |t|
-    %p=t
+    %p=t.name
 
--if current_user.present?
+-if current_user.present? && @trends.blank?
   :javascript
     $(function(){
       $.ajax({

@@ -2,8 +2,8 @@ class User
   include Mongoid::Document
   include Geocoder::Model::Mongoid
 
-  geocoded_by :ip_address               # can also be an IP address
-  after_validation :geocode          # auto-fetch coordinates
+  geocoded_by :ip_address # can also be an IP address
+  after_validation :geocode # auto-fetch coordinates
 
   # Include default devise modules. Others available are:
   # :token_authenticatable, :confirmable,
@@ -15,27 +15,27 @@ class User
 
 
   ## Database authenticatable
-  field :email,              :type => String
+  field :email, :type => String
   field :encrypted_password, :type => String, :default => ""
-  
+
   ## Recoverable
-  field :reset_password_token,   :type => String
+  field :reset_password_token, :type => String
   field :reset_password_sent_at, :type => Time
 
   ## Rememberable
   field :remember_created_at, :type => Time
 
   ## Trackable
-  field :sign_in_count,      :type => Integer, :default => 0
+  field :sign_in_count, :type => Integer, :default => 0
   field :current_sign_in_at, :type => Time
-  field :last_sign_in_at,    :type => Time
+  field :last_sign_in_at, :type => Time
   field :current_sign_in_ip, :type => String
-  field :last_sign_in_ip,    :type => String
+  field :last_sign_in_ip, :type => String
 
-  field :provider,           :type => String
-  field :uid,                :type => String
+  field :provider, :type => String
+  field :uid, :type => String
 
-  field :name,                :type => String
+  field :name, :type => String
 
   field :coordinates, :type => Array
   field :ip_address
@@ -63,11 +63,11 @@ class User
     user = User.where(:provider => auth.provider, :uid => auth.uid).first
 
     unless user
-      user = User.create(name:auth.extra.raw_info.name,
-                         provider:auth.provider,
-                         uid:auth.uid,
-                         email:auth.info.email || auth.extra.raw_info.screen_name,
-                         password:Devise.friendly_token[0,20]
+      user = User.create(name: auth.extra.raw_info.name,
+                         provider: auth.provider,
+                         uid: auth.uid,
+                         email: auth.info.email || auth.extra.raw_info.screen_name,
+                         password: Devise.friendly_token[0, 20]
       )
 
       user.save
@@ -76,7 +76,7 @@ class User
     user.user_timeline
     user.collect_feeds
 
-    user.ip_address =  location == "127.0.0.1"? "150.244.56.51" : location
+    user.ip_address = location == "127.0.0.1" ? "150.244.56.51" : location
     new_address = Geocoder.search(user.ip_address).first.try(:address)
     user.address = new_address if new_address.present?
 
@@ -97,8 +97,13 @@ class User
   def array_sources
     arr_news = []
     self.user_sourceses.each do |us|
-      arr_news += LastNews.where(:date_publish.gte => 30.days.ago).any_in(tags: us.tags)
+      arr_news += LastNews.where(:date_publish.gte => 2.days.ago).any_in(tags: us.tags)
     end
+    if arr_news.blank?
+      self.user_timeline
+      self.collect_feeds
+    end
+
     arr_news
   end
 

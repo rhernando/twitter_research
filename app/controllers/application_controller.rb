@@ -11,9 +11,10 @@ class ApplicationController < ActionController::Base
 
       # older news lost value
       total_news[n.id] = {:score => ((n.date_publish || Date.yesterday) - Date.today).to_i} unless total_news[n.id].present?
-      total_news[n.id][:score] += UserSources.where(:source => n.source, :user => current_user).count
 
-      total_news[n.id] = {:title => n.title, :source => n.source, :url => n.url, :date_publish => n.date_publish.strftime("%d/%m/%Y"), :score => 1 + (total_news[n.id].try(:[], :score) || 0)}
+      total_news[n.id][:score] += UserSources.where(:source => n.source, :user => current_user).count > 0 ? 2 : 0
+
+      total_news[n.id] = {:f_title => n.source_feeds.try(:title),:title => n.title, :source => n.source, :url => n.url, :date_publish => n.date_publish.strftime("%d/%m/%Y"), :score => 1 + (total_news[n.id].try(:[], :score) || 0)}
 
       #current_user.collect_feeds if current_user.present?
 
@@ -23,7 +24,7 @@ class ApplicationController < ActionController::Base
   end
 
   def get_trends(user)
-    @trends = nil
+    @trends = []
     place = GeoPlanet::Place.search(user.address).first
     while @trends.blank? && place.present?
       woeid = place.woeid

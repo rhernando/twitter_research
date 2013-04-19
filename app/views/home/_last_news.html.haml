@@ -3,9 +3,11 @@
     = @total_news.count
   - @total_news.sort_by { |k, v| -v[:score] }.each do |k,v|
     %blockquote
-      %p= raw v[:title]
+      %p
+        = link_to (raw v[:title]), v[:url]
       %small
-        = v[:source]
+        = "#{v[:f_title]} (#{v[:source]})"
         %cite
           = v[:score]
           = "(#{v[:date_publish]})"
+

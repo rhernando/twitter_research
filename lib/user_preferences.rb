@@ -14,7 +14,6 @@ module UserPreferences
   ## then it saves tags into user preferences
   def self.load_timeline(user)
     last_id = user.user_sourceses.last.try(:id_tweet)
-
     tl = nil
     begin
 
@@ -53,7 +52,10 @@ module UserPreferences
   def self.insert_url(url, tweet,user)
     uri = URI.parse(url.expanded_url)
 
-    doc = Pismo::Document.new url.expanded_url
+    p url.expanded_url
+
+    doc = Pismo::Document.new url.expanded_url rescue nil
+    return unless doc.present?
     entities = entities_from_document(doc)
 
 
@@ -64,6 +66,8 @@ module UserPreferences
     arr_ents += doc.keywords.map{|x| x.first if x.first.length > 3}.compact
 
     sf = SourceFeeds.find_or_create_by(:base_url => uri.host.downcase)
+    p 'sasasas'
+    p sf
     if sf.feed_url.blank? && doc.feed.present?
       sf.feed_url = doc.feed
       sf.save
@@ -77,11 +81,11 @@ module UserPreferences
 
   ## rest petition to DBpedia spotlight to annotate document content
   def self.entities_from_document(doc)
-
+    return [] unless doc.present?
     #only if needed
     SPOTLIGHT_ACCESS.class.http_proxy '194.140.11.77', 80
 
-    body_text = (doc.title || '') + ' ' + doc.body
+    body_text = (doc.title || '') + ' ' + (doc.body || '')
 
     body_text.present? ? (SPOTLIGHT_ACCESS.annotate body_text[0, MAX_LENGTH_DBS]) : []
   end

@@ -59,7 +59,8 @@ module TwitterResearch
     # Version of your assets, change this if you want to expire all your assets
     config.assets.version = '1.0'
 
-    config.mongoid.logger = Logger.new($stdout, :info)
+    #config.mongoid.logger = Logger.new($stdout, :debug)
+    config.mongoid.logger = Logger.new("log/mongo.log", :info)
 
   end
 end
