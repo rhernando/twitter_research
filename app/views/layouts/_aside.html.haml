@@ -3,7 +3,7 @@
 
 - if @trends.present?
   - @trends.each do |t|
-    %p=t.name
+    %p= link_to t.name, show_trend_path(t.name), :remote => true
 
 -if current_user.present? && @trends.blank?
   :javascript

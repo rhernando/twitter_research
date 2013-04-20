@@ -1,7 +1,9 @@
 TwitterResearch::Application.routes.draw do
+
   get "home/index"
-  match "home/news" => "home#get_news", :as => :newsfeed
-  match "home/trends" => "home#trends", :as => :trends
+  match "news/news" => "news#get_news", :as => :newsfeed
+  match "news/trends" => "news#trends", :as => :trends
+  get "news/trend/:trend" => "news#trend", :as => :show_trend
 
   #devise_for :users
 

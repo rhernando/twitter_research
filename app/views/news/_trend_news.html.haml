@@ -1,0 +1,9 @@
+- if @news_trend.present?
+  %p
+    = @news_trend.count
+  - @news_trend.each do |nt|
+    %blockquote
+      %h3= link_to nt.title, nt.url, :target => :blank
+      %cite= nt.author
+      %p= nt.lede
+
