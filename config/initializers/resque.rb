@@ -14,5 +14,5 @@ Resque.redis.namespace = "resque:TwitterNews"
 
 
 
-#Resque.schedule = YAML.load_file(rails_root + '/config/resque_scheduler.yml')
+Resque.schedule = YAML.load_file(rails_root + '/config/resque_scheduler.yml')
 

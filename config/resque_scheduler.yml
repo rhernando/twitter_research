@@ -1,8 +1,6 @@
-trash_retry_job:
-  cron: "0 */2 * * *"
-  #every: "30s"
-  queue: trash_remove
-  class: TrashJob
-  description: "Ejecuta el perform method de TrashJob en intervalos de x horas"
-
+update_news:
+  every: 600s
+  class: NewsUpdate
+  #queue: news_update
+  description: "This job will check News every 10 minutes"
 

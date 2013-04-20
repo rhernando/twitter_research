@@ -9,17 +9,6 @@ module Jobs
 
     def self.after_perform_log(*args)
       puts "WORKER: Finished #{self.name}"
-
-      puts "*"*30
-
-      next_execution = Time.now + 10.minutes
-
-      puts "WORKER: Delayed job #{self}: #{args}  Next running #{next_execution}"
-      Resque.enqueue_at(next_execution, self, *args)
-
-      puts "*"*30
-
-
     end
 
     def self.on_failure_log(e, *args)

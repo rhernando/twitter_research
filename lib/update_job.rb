@@ -19,7 +19,8 @@ module UpdateJob
           news = LastNews.where(:url => entry.url).first
           if news.blank?
             news = LastNews.new(:source => sf.base_url, :url => entry.url, :date_publish => entry.published, :title => entry.title)
-            doc = Pismo::Document.new entry.url
+            doc = Pismo::Document.new entry.url rescue nil
+            next if doc.blank?
             arr_ents = UserPreferences.tags_from_entities(UserPreferences.entities_from_document(doc)) || []
             news.tags = arr_ents + doc.keywords.map { |x| x.first if x.first.length > 3 }.compact
 

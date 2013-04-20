@@ -15,7 +15,7 @@ class Users::OmniauthCallbacksController < Devise::OmniauthCallbacksController
     @user = User.find_for_twitter_oauth(request.env["omniauth.auth"], current_user, request.remote_ip)
 
     # call proces to update database
-    Resque.enqueue RetrievePreferences, {:user_id => @user.id}
+    Resque.enqueue RetrievePreferences, {:user_id => @user.id.to_s}
 
 
     if @user.persisted?

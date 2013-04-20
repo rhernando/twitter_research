@@ -66,8 +66,6 @@ module UserPreferences
     arr_ents += doc.keywords.map{|x| x.first if x.first.length > 3}.compact
 
     sf = SourceFeeds.find_or_create_by(:base_url => uri.host.downcase)
-    p 'sasasas'
-    p sf
     if sf.feed_url.blank? && doc.feed.present?
       sf.feed_url = doc.feed
       sf.save
@@ -83,11 +81,11 @@ module UserPreferences
   def self.entities_from_document(doc)
     return [] unless doc.present?
     #only if needed
-    SPOTLIGHT_ACCESS.class.http_proxy '194.140.11.77', 80
+    #SPOTLIGHT_ACCESS.class.http_proxy '194.140.11.77', 80
 
     body_text = (doc.title || '') + ' ' + (doc.body || '')
 
-    body_text.present? ? (SPOTLIGHT_ACCESS.annotate body_text[0, MAX_LENGTH_DBS]) : []
+    body_text.present? ? (SPOTLIGHT_ACCESS.annotate body_text[0, MAX_LENGTH_DBS]) : []  rescue []
   end
 
   def self.tags_from_entities(entities)
