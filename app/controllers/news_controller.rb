@@ -18,9 +18,12 @@ class NewsController < ApplicationController
       tweet.urls.each do |url|
         begin
           doc = Pismo::Document.new url.expanded_url rescue nil
-          @news_trend << doc
+          if doc.present?
+            @news_trend << doc
+            Resque.enqueue AddSource, {:url => url.expanded_url}
+          end
         rescue RuntimeError => e
-          Rails.logger.warn "La url #{u.expanded_url} no es accesible. #{e}"
+          Rails.logger.warn "La url #{url.expanded_url} no es accesible. #{e}"
         end
       end
 
