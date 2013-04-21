@@ -4,6 +4,7 @@ namespace :tweets do
   task :updater => :environment do
     ENV['RAILS_ENV'] = "development" if  !ENV['RAILS_ENV']
 
+    Resque.enqueue UpdateScore
     Resque.enqueue NewsUpdate
 
   end

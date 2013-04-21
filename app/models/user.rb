@@ -42,6 +42,9 @@ class User
   field :address, :type => String
 
   has_many :user_sourceses, dependent: :delete
+  has_many :user_scorings
+  has_many :user_newses
+
 
   ## Confirmable
   # field :confirmation_token,   :type => String
@@ -94,7 +97,7 @@ class User
   def array_sources
     arr_news = []
     self.user_sourceses.each do |us|
-      arr_news += LastNews.where(:date_publish.gte => 2.days.ago).any_in(tags: us.tags)
+      arr_news += LastNews.where(:date_publish.gte => 5.days.ago).any_in(tags: us.tags)
     end
 
     arr_news

@@ -55,6 +55,8 @@ end
 gem 'jquery-rails'
 gem 'jquery-ui-rails'
 gem "haml-rails"
+#rarting news
+gem 'jquery-raty-rails'
 
 # twitter layout and styles
 gem 'bootstrap-sass'

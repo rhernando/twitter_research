@@ -1,1 +1,12 @@
 $("#newsfeeds").html("<%= escape_javascript(render :partial => "home/last_news") %>");
+
+$('.star').raty({
+    click: function(score, evt) {
+        alert('ID: ' + $(this).attr('id') + "\nscore: " + score + "\nevent: " + evt);
+        $.ajax({
+            url: '<%= rate_news_path %>',
+            type: 'POST',
+            data: { idn: $(this).attr('id'), rating: score }
+        });
+    }
+});

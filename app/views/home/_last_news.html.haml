@@ -1,13 +1,14 @@
 - if @total_news.present?
   %p
     = @total_news.count
-  - @total_news.sort_by { |k, v| -v[:score] }.each do |k,v|
+  - @total_news.each do |un|
     %blockquote
       %p
-        = link_to (raw v[:title]), v[:url]
+        = link_to (raw un.last_news.title), un.last_news.url
+        .star{:id => un.last_news.id}
       %small
-        = "#{v[:f_title]} (#{v[:source]})"
+        = "#{un.feed_title} (#{un.last_news.source})"
         %cite
-          = v[:score]
-          = "(#{v[:date_publish]})"
+          = un.total_score
+          = "(#{un.last_news.date_publish})"
 

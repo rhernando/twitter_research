@@ -2,6 +2,7 @@ class LastNews
   include Mongoid::Document
 
   belongs_to :source_feeds
+  has_many :user_scorings
 
   field :tags, :type => Array
   field :url, type: String

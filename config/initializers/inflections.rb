@@ -9,6 +9,9 @@ ActiveSupport::Inflector.inflections do |inflect|
   inflect.irregular 'UserSources', 'UserSourceses'
   inflect.irregular 'user_sources', 'user_sourceses'
 
+  inflect.irregular 'UserNews', 'UserNewses'
+  inflect.irregular 'user_news', 'user_newses'
+
   inflect.uncountable %w( fish sheep )
 end
 #

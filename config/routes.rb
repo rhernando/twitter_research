@@ -4,11 +4,9 @@ TwitterResearch::Application.routes.draw do
   match "news/news" => "news#get_news", :as => :newsfeed
   match "news/trends" => "news#trends", :as => :trends
   get "news/trend/:trend" => "news#trend", :as => :show_trend
-
-  #devise_for :users
+  post "news/rate" => "news#rate_news", :as => :rate_news
 
   devise_for :users, :controllers => { :omniauth_callbacks => "users/omniauth_callbacks" } , :skip => [:sessions, :registration]
-  #match '/auth/:provider/callback' => 'users/omniauth_callbacks#passthru'
   devise_scope :user do
     get '/users/auth/:provider' => 'users/omniauth_callbacks#passthru'
 
