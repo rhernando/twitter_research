@@ -1,8 +1,10 @@
 - if @trends.present?
+  %h4 Trending Topic News
   - @trends.each do |t|
     %p= link_to t.name, show_trend_path(t.name), :remote => true
 
 -if current_user.present? && @trends.nil?
+  = image_tag 'ajax-loader-large.gif', :width => 100, :style => 'text-align: center', :align => 'center'
   :javascript
     $(function(){
       $.ajax({

@@ -8,10 +8,11 @@
 
 - if current_user.present?
   #newsfeeds
+    = image_tag 'ajax-loader-large.gif', :width => 170
 
   :javascript
     $(function(){
-      $.ajax({
+       $.ajax({
           url: '#{newsfeed_path}',
           cache: false,
           type: 'GET'

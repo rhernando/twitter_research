@@ -1,27 +1,49 @@
 $("#newsfeeds").html("<%= escape_javascript(render :partial => "home/last_news") %>");
 
 $('.star').raty({
-    score: function() {
+    score:function () {
         return $(this).attr('data-score');
     },
-    click: function(score, evt) {
+    click:function (score, evt) {
         //alert('ID: ' + $(this).attr('id') + "\nscore: " + score + "\nevent: " + evt);
         $.ajax({
-            url: '<%= rate_news_path %>',
-            type: 'POST',
-            data: { idn: $(this).attr('id'), rating: score }
+            url:'<%= rate_news_path %>',
+            type:'POST',
+            data:{ idn:$(this).attr('id'), rating:score }
         });
     }
 });
 
 $('.lnew').click(
-    function(data, evt) {
-        $.ajax({
-            url: '<%= rate_news_path %>',
-            type: 'POST',
-            data: { idn: $(this).attr('id').substring(2) }
-        });
+        function (data, evt) {
+            $.ajax({
+                url:'<%= rate_news_path %>',
+                type:'POST',
+                data:{ idn:$(this).attr('id').substring(2) }
+            });
 
-    }
+        }
 
+);
+
+$('#prev-btn').click(
+        function (data, evt) {
+            $.ajax({
+                url:'<%= newsfeed_path %>',
+                type:'POST',
+                data:{ page: <%= (@page || 0).to_i - 1 %> }
+            });
+
+        }
+);
+
+$('#next-btn').click(
+        function (data, evt) {
+            $.ajax({
+                url:'<%= newsfeed_path %>',
+                type:'POST',
+                data:{ page: <%= (@page || 0).to_i + 1 %> }
+            });
+
+        }
 );

@@ -1,7 +1,8 @@
 class NewsController < ApplicationController
   def get_news
-    offset = (params[:page] || 0) * 10
-    @total_news = current_user.user_newses.limit(10).skip(offset).order_by([:total_score, :desc])
+    offset = (params[:page] || 0).to_i * 10
+    @page = params[:page]
+    @total_news = current_user.user_newses.limit(15).skip(offset).order_by([:total_score, :desc])
     render :layout => false
   end
 

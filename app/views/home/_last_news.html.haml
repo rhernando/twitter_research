@@ -1,6 +1,11 @@
 - if @total_news.present?
   %p
-    = @total_news.count
+    = "Showing 15 of #{@total_news.count}. Page #{(@page || 0).to_i + 1}."
+    - if @page.present? && @page.to_i > 0
+      %button.btn.btn-info#prev-btn
+        Prev
+    %button.btn.btn-info#next-btn
+      Next
   - @total_news.each do |un|
     %blockquote.well
       %p
