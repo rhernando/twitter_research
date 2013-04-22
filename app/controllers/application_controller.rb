@@ -7,7 +7,7 @@ class ApplicationController < ActionController::Base
     while @trends.blank? && place.present?
       woeid = place.woeid
       place = place.parent
-      @trends = Twitter.trends(woeid) rescue nil
+      @trends = Twitter.trends(woeid) rescue []
     end
   end
 

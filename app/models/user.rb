@@ -44,6 +44,7 @@ class User
   has_many :user_sourceses, dependent: :delete
   has_many :user_scorings
   has_many :user_newses
+  has_many :friends_sources
 
 
   ## Confirmable

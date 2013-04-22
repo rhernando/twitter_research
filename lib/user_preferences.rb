@@ -29,7 +29,7 @@ module UserPreferences
             tweet.urls.each do |u|
               begin
                 us = UserSources.where(:id_tweet => tweet.id).first
-                insert_url(u, tweet,user) unless us.present?
+                insert_url(u, tweet, user) unless us.present?
               rescue RuntimeError => e
                 Rails.logger.warn "La url #{u.expanded_url} no es accesible. #{e}"
               end
@@ -49,7 +49,7 @@ module UserPreferences
 
   ## given a url, it retrieves tags and store them as user topics
   ## it also stores URL as a preferred source for the user
-  def self.insert_url(url, tweet,user)
+  def self.insert_url(url, tweet, user, friend_id = nil)
     uri = URI.parse(url.expanded_url)
 
     p url.expanded_url
@@ -63,7 +63,7 @@ module UserPreferences
     # we use first 4000 chars because of the capacity limit of the url in rest services
     arr_ents = tags_from_entities(entities) || []
 
-    arr_ents += doc.keywords.map{|x| x.first if x.first.length > 3}.compact
+    arr_ents += doc.keywords.map { |x| x.first if x.first.length > 3 }.compact rescue []
 
     sf = SourceFeeds.find_or_create_by(:base_url => uri.host.downcase)
     if sf.feed_url.blank? && doc.feed.present?
@@ -71,8 +71,13 @@ module UserPreferences
       sf.save
     end
 
-    us = UserSources.new(:url => url.expanded_url, :id_tweet => tweet.id, :source => uri.host.downcase, :tags => arr_ents, :user => user)
-    us.save
+    if friend_id.present?
+      us = FriendsSource.new(:url => url.expanded_url, :id_tweet => tweet.id, :source => uri.host.downcase, :tags => arr_ents, :user => user, :friend_id => friend_id)
+      us.save
+    else
+      us = UserSources.new(:url => url.expanded_url, :id_tweet => tweet.id, :source => uri.host.downcase, :tags => arr_ents, :user => user)
+      us.save
+    end
 
   end
 
@@ -81,11 +86,11 @@ module UserPreferences
   def self.entities_from_document(doc)
     return [] unless doc.present?
     #only if needed
-    #SPOTLIGHT_ACCESS.class.http_proxy '194.140.11.77', 80
+    SPOTLIGHT_ACCESS.class.http_proxy '194.140.11.77', 80
 
-    body_text = (doc.title || '') + ' ' + (doc.body || '')
+    body_text = (doc.title || '') + ' ' + (doc.body || '') rescue nil
 
-    body_text.present? ? (SPOTLIGHT_ACCESS.annotate body_text[0, MAX_LENGTH_DBS]) : []  rescue []
+    body_text.present? ? (SPOTLIGHT_ACCESS.annotate body_text[0, MAX_LENGTH_DBS]) : [] rescue []
   end
 
   def self.tags_from_entities(entities)
@@ -101,5 +106,38 @@ module UserPreferences
       end
       arr_ents
     end
+  end
+
+  def self.load_friends_tl(user, friends_ids)
+    friends_ids.each do |fid|
+      num_attempts = 0
+      begin
+        num_attempts += 1
+        params = {:include_rts => true, :count => 20}
+        tl = Twitter.user_timeline fid, params.delete_if { |k, v| v.blank? || k == :screen_name }
+        if tl.present?
+          p "Retrieving URL from #{tl.count} tweets of friend #{fid}"
+          tl.each do |tweet|
+            tweet.urls.each do |u|
+              begin
+                us = FriendsSource.where(:id_tweet => tweet.id, :id_friend => fid).first
+                insert_url(u, tweet, user, fid) unless us.present?
+              rescue RuntimeError => e
+                Rails.logger.warn "La url #{u.expanded_url} no es accesible. #{e}"
+              end
+            end
+          end
+        end
+      rescue Twitter::Error::TooManyRequests => error
+        if num_attempts <= MAX_ATTEMPTS
+          sleep error.rate_limit.reset_in
+          retry
+        else
+          raise
+        end
+      end
+
+    end
+
   end
 end

@@ -3,4 +3,8 @@ update_news:
   class: NewsUpdate
   #queue: news_update
   description: "This job will check News every 10 minutes"
-
+update_scoring:
+  every: 600s
+  class: UpdateScore
+  args:
+  description: update scores

@@ -1,5 +1,8 @@
-%h1 Home#index
-%p Find me in app/views/home/index.html.haml
+
+%h1
+  = image_tag 'twitter-bird-light-bgs.png', :width => 80
+  Twitter News Reader
+%p Last news of your interest
 
 = link_to "Sign in with Twitter", user_omniauth_authorize_path(:twitter) unless current_user.present?
 

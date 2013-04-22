@@ -2,7 +2,7 @@
   %p
     = @total_news.count
   - @total_news.each do |un|
-    %blockquote
+    %blockquote.well
       %p
         = link_to (raw un.last_news.title), un.last_news.url
         .star{:id => un.last_news.id}
@@ -12,3 +12,4 @@
           = un.total_score
           = "(#{un.last_news.date_publish})"
 
+      %p= un.last_news.lede

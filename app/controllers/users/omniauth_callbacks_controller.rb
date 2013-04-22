@@ -5,6 +5,7 @@ class Users::OmniauthCallbacksController < Devise::OmniauthCallbacksController
     # Or alternatively,
     # raise ActionController::RoutingError.new('Not Found')
   end
+
   def twitter
     p 'Buscando tw User. ... .. .. .  . .'
     p params
@@ -16,6 +17,8 @@ class Users::OmniauthCallbacksController < Devise::OmniauthCallbacksController
 
     # call proces to update database
     Resque.enqueue RetrievePreferences, {:user_id => @user.id.to_s}
+    Resque.enqueue NewsUpdate
+    Resque.enqueue UpdateScore
 
 
     if @user.persisted?
@@ -29,5 +32,11 @@ class Users::OmniauthCallbacksController < Devise::OmniauthCallbacksController
 
   def providers
     ["twitter"]
+  end
+
+  def failure
+    flash.alert = "Error en la autentificacion"
+
+    redirect_to root_path
   end
 end

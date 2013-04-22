@@ -19,9 +19,13 @@
       .container-fluid
         .row-fluid
           .span3
-            .well.sidebar-nav
+            .well.well-large.sidebar-nav
               #asidebar
                 = render 'layouts/aside'
+            - if user_signed_in?
+              .well.well-large.sidebar-nav
+                #asidebar_friends
+                  = render 'layouts/aside_friends'
           .span8
             = render 'layouts/messages'
             = yield

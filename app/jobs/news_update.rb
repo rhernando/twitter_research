@@ -9,9 +9,6 @@ class NewsUpdate < Jobs::Base
 
     UpdateJob.update_news
 
-    Resque.enqueue_in(10.minutes, NewsUpdate, *opts)
-
-
   end
 
 end
