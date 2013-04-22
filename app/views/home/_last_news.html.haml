@@ -4,8 +4,13 @@
   - @total_news.each do |un|
     %blockquote.well
       %p
-        = link_to (raw un.last_news.title), un.last_news.url
-        .star{:id => un.last_news.id}
+        = link_to un.last_news.url, :class => 'lnew', :id => "l_#{un.last_news.id}", :target => :blank do
+          - btn_class = class_btn(current_user, un.last_news)
+          %button.btn{:class => btn_class}
+            %i.icon-search.icon-white
+          = (raw un.last_news.title)
+
+        .star{:id => un.last_news.id, 'data-score' => score(current_user, un.last_news)}
       %small
         = "#{un.feed_title} (#{un.last_news.source})"
         %cite

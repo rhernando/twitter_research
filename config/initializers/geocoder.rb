@@ -4,7 +4,7 @@ Geocoder.configure(
     :lookup       => :google,     # name of geocoding service (symbol)
     :language => :es, # ISO-639 language code
     # :use_https    => false,       # use HTTPS for lookup requests? (if supported)
-    :http_proxy => "194.140.11.77:80", # HTTP proxy server (user:pass@host:port)
+    #:http_proxy => "194.140.11.77:80", # HTTP proxy server (user:pass@host:port)
     # :https_proxy  => nil,         # HTTPS proxy server (user:pass@host:port)
     # :api_key      => nil,         # API key for geocoding service
     # :cache        => nil,         # cache object (must respond to #[], #[]=, and #keys)
@@ -21,5 +21,5 @@ Geocoder.configure(
 )
 
 
-RestClient.proxy = "http://194.140.11.77:80/"
+#RestClient.proxy = "http://194.140.11.77:80/"
 GeoPlanet.appid = 'XV0TZjzV34EExBNdyzE6i4YYdCReYURnhNCbYAnK69As55t1kvTdWHsXo6zIKTG90FzuW_g-'

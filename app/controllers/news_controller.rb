@@ -35,6 +35,19 @@ class NewsController < ApplicationController
   end
 
   def rate_news
+    @lnew = LastNews.find params['idn']
+    if @lnew.present?
+      score = UserScoring.where(:last_news => @lnew, :user => current_user).first
+      score = UserScoring.new(:last_news => @lnew, :user => current_user, :views => 0) if score.blank?
+      if params['rating'].present?
+        score.rate = params['rating'].to_i
+      else
+        score.views += 1
+      end
+      score.save
+    end
+
+
     render :layout => false
 
   end

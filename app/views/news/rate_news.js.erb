@@ -1,0 +1,4 @@
+<% if @lnew.present? %>
+    <% btn_class = class_btn(current_user, @lnew)%>
+    $('#<%= "l_#{@lnew.id}" %> button').attr('class', 'btn <%= btn_class %>');
+<% end %>

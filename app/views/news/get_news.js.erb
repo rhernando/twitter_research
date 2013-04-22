@@ -1,8 +1,11 @@
 $("#newsfeeds").html("<%= escape_javascript(render :partial => "home/last_news") %>");
 
 $('.star').raty({
+    score: function() {
+        return $(this).attr('data-score');
+    },
     click: function(score, evt) {
-        alert('ID: ' + $(this).attr('id') + "\nscore: " + score + "\nevent: " + evt);
+        //alert('ID: ' + $(this).attr('id') + "\nscore: " + score + "\nevent: " + evt);
         $.ajax({
             url: '<%= rate_news_path %>',
             type: 'POST',
@@ -10,3 +13,15 @@ $('.star').raty({
         });
     }
 });
+
+$('.lnew').click(
+    function(data, evt) {
+        $.ajax({
+            url: '<%= rate_news_path %>',
+            type: 'POST',
+            data: { idn: $(this).attr('id').substring(2) }
+        });
+
+    }
+
+);

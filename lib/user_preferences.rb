@@ -86,7 +86,7 @@ module UserPreferences
   def self.entities_from_document(doc)
     return [] unless doc.present?
     #only if needed
-    SPOTLIGHT_ACCESS.class.http_proxy '194.140.11.77', 80
+    #SPOTLIGHT_ACCESS.class.http_proxy '194.140.11.77', 80
 
     body_text = (doc.title || '') + ' ' + (doc.body || '') rescue nil
 
