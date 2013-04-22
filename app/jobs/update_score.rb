@@ -14,7 +14,7 @@ class UpdateScore < Jobs::Base
       LastNews.all.each do |ln|
         next if UserSources.where(:url => /#{ln.url}/, :user => user).first.present?
 
-        un = UserNews.where(:last_news => ln, :user => user)
+        un = UserNews.where(:last_news => ln, :user => user).first
         un = UserNews.new(:last_news => ln, :user => user, :score => 0, :feed_title => ln.source_feeds.try(:title), :total_score => 0) if un.blank?
 
         un.score += user.user_sourceses.any_in(tags: ln.tags).count
