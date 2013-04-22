@@ -4,6 +4,9 @@
     - if @page.present? && @page.to_i > 0
       %button.btn.btn-info#prev-btn
         Prev
+    - else
+      %button.btn.btn-info.disabled
+        Prev
     %button.btn.btn-info#next-btn
       Next
   - @total_news.each do |un|

@@ -22,7 +22,8 @@ module UpdateJob
             doc = Pismo::Document.new entry.url rescue nil
             next if doc.blank?
             arr_ents = UserPreferences.tags_from_entities(UserPreferences.entities_from_document(doc)) || []
-            news.tags = arr_ents + doc.keywords.map { |x| x.first if x.first.length > 3 }.compact
+            news.tags = arr_ents
+            news.tags += doc.keywords.map { |x| x.first if x.first.length > 3 }.compact rescue []
             news.lede = doc.lede
             news.save
           end
