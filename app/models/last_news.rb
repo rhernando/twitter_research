@@ -9,6 +9,7 @@ class LastNews
   field :source, type: String
   field :date_publish, :type => Date
   field :title, type: String
+  field :lede, type: String
 
 
   index({ url: 1 }, { unique: true, name: "url_ln_index" })

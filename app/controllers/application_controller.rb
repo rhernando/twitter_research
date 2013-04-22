@@ -3,7 +3,7 @@ class ApplicationController < ActionController::Base
 
   def get_trends(user)
     @trends = []
-    place = GeoPlanet::Place.search(user.address).first
+    place = GeoPlanet::Place.search(user.address).try :first
     while @trends.blank? && place.present?
       woeid = place.woeid
       place = place.parent

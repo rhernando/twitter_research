@@ -27,7 +27,20 @@ class UpdateScore < Jobs::Base
         Rails.logger.info "Updated #{ln.title} with score #{un.score}"
       end
 
+      arr_news = LastNews.nin(:id => user.user_newses.to_a.map { |x| x.last_news.id })
+      arr_news.each do |ln|
+        updatable = UserNews.where(:last_news => ln)
+        updatable.each do |un|
+          un.total_score = un.score + ((ln.date_publish || Date.yesterday) - Date.today).to_i
+          un.save
+        end
+      end
+
     end
+
+    Resque.enqueue_in(10.minutes, UpdateScore, *opts)
+
+
   end
 
 end

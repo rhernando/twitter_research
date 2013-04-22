@@ -7,8 +7,8 @@ module UpdateJob
 
   ## check news from sources and store tags
   def self.update_news
-    # update feeds accesed more than 10 minutes
-    SourceFeeds.any_of({:last_access.lte => 10.minutes.ago}, {:last_access => nil}).each do |sf|
+    # update feeds accesed more than 60 minutes
+    SourceFeeds.any_of({:last_access.lte => 60.minutes.ago}, {:last_access => nil}).each do |sf|
       feed = Feedzirra::Feed.fetch_and_parse(sf.feed_url)
       sf.last_access = Time.now
       sf.title = feed.title rescue nil
@@ -23,7 +23,7 @@ module UpdateJob
             next if doc.blank?
             arr_ents = UserPreferences.tags_from_entities(UserPreferences.entities_from_document(doc)) || []
             news.tags = arr_ents + doc.keywords.map { |x| x.first if x.first.length > 3 }.compact
-
+            news.lede = doc.lede
             news.save
           end
 
