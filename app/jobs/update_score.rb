@@ -23,7 +23,7 @@ class UpdateScore < Jobs::Base
         un.score += user.friends_sources.any_in(tags: ln.tags).count
         un.score += FriendsSource.where(:source => ln.source, :user => user).count
 
-        u_score = UserScoring.where(:last_news => ln, :user => user)
+        u_score = UserScoring.where(:last_news => ln, :user => user).first
         if u_score.present?
           un.score += u_score.views
           un.score += (u_score.rate - 3) * 2 if u_score.rate.present?

@@ -24,7 +24,7 @@ module UpdateJob
             arr_ents = UserPreferences.tags_from_entities(UserPreferences.entities_from_document(doc)) || []
             news.tags = arr_ents
             news.tags += doc.keywords.map { |x| x.first if x.first.length > 3 }.compact rescue []
-            news.lede = doc.lede
+            news.lede = doc.lede rescue ''
             news.save
           end
 
