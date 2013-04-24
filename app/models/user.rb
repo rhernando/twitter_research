@@ -46,7 +46,6 @@ class User
   has_many :user_newses
   has_many :friends_sources
 
-
   ## Confirmable
   # field :confirmation_token,   :type => String
   # field :confirmed_at,         :type => Time

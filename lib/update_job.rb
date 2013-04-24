@@ -38,4 +38,62 @@ module UpdateJob
 
   end
 
+  def self.update_network!(update_db, user)
+    begin
+      if update_db || user.arr_followers.blank?
+        followers = Twitter.followers(user.uid.to_i)
+        user.arr_followers = UpdateJob.get_users_array(followers)
+        user.save
+        Rails.logger.info "Retrieved #{user.arr_followers.count} followers"
+      end
+    rescue Twitter::Error::TooManyRequests => error
+      if num_attempts <= MAX_ATTEMPTS
+        sleep error.rate_limit.reset_in
+        retry
+      else
+        raise
+      end
+    end
+
+
+    begin
+      if update_db || auser.arr_friends.blank?
+        friends = Twitter.friends(user.uid.to_i)
+        user.arr_friends = UpdateJob.get_users_array(friends)
+        user.save
+        Rails.logger.info "Retrieved #{user.arr_friends.count} friends"
+      end
+    rescue Twitter::Error::TooManyRequests => error
+      if num_attempts <= MAX_ATTEMPTS
+        sleep error.rate_limit.reset_in
+        retry
+      else
+        raise
+      end
+    end
+
+    user
+  end
+
+  def self.get_users_array(twitusers)
+    arr_follow = []
+    twitusers.each do |f|
+      follower = TwitterUserData.where(:id_twitter => f.id.to_s).first
+      follower = TwitterUserData.new(:id_twitter => f.id.to_s) if follower.blank?
+
+      follower.update_attributes(
+          :name => f.name,
+          :num_followers => f.followers_count,
+          :num_friends => f.friends_count,
+          :num_tweets => f.statuses_count,
+          :born => f.created_at,
+          :is_geo => f.geo_enabled)
+      follower.save
+
+      Rails.logger.info "retrieved user #{f.name}"
+
+      arr_follow << follower.id
+    end
+
+  end
 end
