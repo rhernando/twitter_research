@@ -38,16 +38,25 @@ module UpdateJob
 
   end
 
+  MAX_ATTEMPTS = 3
+
   def self.update_network!(update_db, user)
+    Rails.logger.info "checking network for user #{user.name}(#{user.id_twitter.to_i})"
+    num_attempts = 0
     begin
+      num_attempts += 1
       if update_db || user.arr_followers.blank?
-        followers = Twitter.followers(user.uid.to_i)
+        followers = Twitter.followers(user.id_twitter.to_i)
         user.arr_followers = UpdateJob.get_users_array(followers)
+
+        Rails.logger.info user.inspect
+        Rails.logger.info "Saving user"
         user.save
         Rails.logger.info "Retrieved #{user.arr_followers.count} followers"
       end
     rescue Twitter::Error::TooManyRequests => error
       if num_attempts <= MAX_ATTEMPTS
+        Rails.logger.info "Waiting . rate limit"
         sleep error.rate_limit.reset_in
         retry
       else
@@ -55,22 +64,27 @@ module UpdateJob
       end
     end
 
+    Rails.logger.info "followers updated"
 
+    num_attempts = 0
     begin
-      if update_db || auser.arr_friends.blank?
-        friends = Twitter.friends(user.uid.to_i)
+      num_attempts += 1
+      if update_db || user.arr_friends.blank?
+        friends = Twitter.friends(user.id_twitter.to_i)
         user.arr_friends = UpdateJob.get_users_array(friends)
         user.save
         Rails.logger.info "Retrieved #{user.arr_friends.count} friends"
       end
     rescue Twitter::Error::TooManyRequests => error
       if num_attempts <= MAX_ATTEMPTS
+        Rails.logger.info "Waiting . rate limit"
         sleep error.rate_limit.reset_in
         retry
       else
         raise
       end
     end
+    Rails.logger.info "friends updated"
 
     user
   end
@@ -94,6 +108,6 @@ module UpdateJob
 
       arr_follow << follower.id
     end
-
+    arr_follow
   end
 end

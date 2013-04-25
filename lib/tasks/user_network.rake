@@ -5,7 +5,6 @@ namespace :tweets do
     ENV['RAILS_ENV'] = "development" if  !ENV['RAILS_ENV']
     Rails.logger = Logger.new(STDOUT)
 
-    MAX_ATTEMPTS = 3
 
     user_name = ENV['USERNAME']
     update_db = ENV['UPDATE'].present? && ENV['UPDATE'] == '1'
@@ -13,14 +12,21 @@ namespace :tweets do
 
     Rails.logger.info "Updating network for user #{user.name}(#{user.email})"
 
-    UpdateJob.update_network!(update_db, user)
+    user_tw = TwitterUserData.where(:id_twitter => user.uid.to_i).first
+    user_tw = TwitterUserData.new(:id_twitter => user.uid.to_i) if user_tw.blank?
 
-    user.arr_followers.each do |fid|
+    UpdateJob.update_network!(update_db, user_tw)
 
-      UpdateJob.update_network!(update_db, user)
+
+    user_tw.arr_followers.each do |fid|
+      fus = TwitterUserData.find(fid)
+      UpdateJob.update_network!(update_db, fus) if fus.present?
     end
 
 
+    Graphs.create_graph user_tw
 
   end
+
+
 end

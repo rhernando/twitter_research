@@ -15,6 +15,8 @@ class TwitterUserData
   field :arr_followers, :type => Array
   field :arr_friends, :type => Array
 
+  index({ id_twitter: 1 }, { unique: true, name: "u_ id_twitter_index" })
+
 
 end
 
