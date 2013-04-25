@@ -45,8 +45,10 @@ module UpdateJob
     num_attempts = 0
     begin
       num_attempts += 1
-      if update_db || user.arr_followers.blank?
+      if update_db || user.arr_followers.blank? || (user.arr_followers.count != user.num_followers)
         followers = Twitter.followers(user.id_twitter.to_i)
+
+        Rails.logger.info "Filling followers array"
         user.arr_followers = UpdateJob.get_users_array(followers)
 
         Rails.logger.info user.inspect
@@ -56,6 +58,7 @@ module UpdateJob
       end
     rescue Twitter::Error::TooManyRequests => error
       if num_attempts <= MAX_ATTEMPTS
+        Rails.logger.info error.rate_limit.inspect
         Rails.logger.info "Waiting . rate limit"
         sleep error.rate_limit.reset_in
         retry
@@ -77,6 +80,7 @@ module UpdateJob
       end
     rescue Twitter::Error::TooManyRequests => error
       if num_attempts <= MAX_ATTEMPTS
+        Rails.logger.info error.rate_limit.inspect
         Rails.logger.info "Waiting . rate limit"
         sleep error.rate_limit.reset_in
         retry
