@@ -40,61 +40,79 @@ module UpdateJob
 
   MAX_ATTEMPTS = 3
 
+  # http://www.ibm.com/developerworks/opensource/library/os-dataminingrubytwitter/
+  # http://www.jstatsoft.org/v29/i04/paper
   def self.update_network!(update_db, user)
     Rails.logger.info "checking network for user #{user.name}(#{user.id_twitter.to_i})"
     num_attempts = 0
-    begin
-      num_attempts += 1
-      if update_db || user.arr_followers.blank? || (user.arr_followers.count != user.num_followers)
-        followers = Twitter.followers(user.id_twitter.to_i)
+    cursor = "-1"
 
-        Rails.logger.info "Filling followers array"
-        user.arr_followers = UpdateJob.get_users_array(followers)
+    if update_db || user.arr_followers.blank?
+      while cursor != 0 do
+        begin
+          num_attempts += 1
+          followers = Twitter.followers(user.id_twitter.to_i, :cursor => cursor)
 
-        Rails.logger.info user.inspect
-        Rails.logger.info "Saving user"
-        user.save
-        Rails.logger.info "Retrieved #{user.arr_followers.count} followers"
-      end
-    rescue Twitter::Error::TooManyRequests => error
-      if num_attempts <= MAX_ATTEMPTS
-        Rails.logger.info error.rate_limit.inspect
-        Rails.logger.info "Waiting . rate limit"
-        sleep error.rate_limit.reset_in
-        retry
-      else
-        raise
+          Rails.logger.info "Filling followers array"
+          user.arr_followers = UpdateJob.get_users_array(followers.collection, user.arr_followers)
+
+          user.save
+          Rails.logger.info "Retrieved #{user.arr_followers.count} followers"
+
+          cursor = followers.next_cursor
+          num_attempts = 0
+        rescue Twitter::Error::TooManyRequests => error
+          if num_attempts <= MAX_ATTEMPTS
+            Rails.logger.info error.rate_limit.inspect
+            Rails.logger.info "Waiting . rate limit"
+            sleep error.rate_limit.reset_in
+            retry
+          else
+            raise
+          end
+        end
       end
     end
 
     Rails.logger.info "followers updated"
 
     num_attempts = 0
-    begin
-      num_attempts += 1
-      if update_db || user.arr_friends.blank?
-        friends = Twitter.friends(user.id_twitter.to_i)
-        user.arr_friends = UpdateJob.get_users_array(friends)
-        user.save
-        Rails.logger.info "Retrieved #{user.arr_friends.count} friends"
+    cursor = "-1"
+    if update_db || user.arr_friends.blank?
+
+      while cursor != 0 do
+        begin
+          num_attempts += 1
+          friends = Twitter.friends(user.id_twitter.to_i, :cursor => cursor)
+
+          Rails.logger.info "Filling friends array"
+          user.arr_friends = UpdateJob.get_users_array(friends.collection, user.arr_friends)
+
+          Rails.logger.info "Retrieved #{user.arr_friends.count} friends"
+
+          user.save
+          cursor = friends.next_cursor
+          num_attempts = 0
+        rescue Twitter::Error::TooManyRequests => error
+          if num_attempts <= MAX_ATTEMPTS
+            Rails.logger.info error.rate_limit.inspect
+            Rails.logger.info "Waiting . rate limit"
+            sleep error.rate_limit.reset_in
+            retry
+          else
+            raise
+          end
+        end
       end
-    rescue Twitter::Error::TooManyRequests => error
-      if num_attempts <= MAX_ATTEMPTS
-        Rails.logger.info error.rate_limit.inspect
-        Rails.logger.info "Waiting . rate limit"
-        sleep error.rate_limit.reset_in
-        retry
-      else
-        raise
-      end
+
     end
     Rails.logger.info "friends updated"
 
     user
   end
 
-  def self.get_users_array(twitusers)
-    arr_follow = []
+  def self.get_users_array(twitusers, arr_follow = [])
+    arr_follow = [] unless arr_follow.kind_of?(Array)
     twitusers.each do |f|
       follower = TwitterUserData.where(:id_twitter => f.id.to_s).first
       follower = TwitterUserData.new(:id_twitter => f.id.to_s) if follower.blank?
@@ -110,7 +128,8 @@ module UpdateJob
 
       Rails.logger.info "retrieved user #{f.name}"
 
-      arr_follow << follower.id
+      arr_follow |= [follower.id]
+      Rails.logger.info "ARRAY #{arr_follow}"
     end
     arr_follow
   end
