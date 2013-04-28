@@ -1,6 +1,9 @@
 - if @news_trend.present?
   %p
-    = @news_trend.count
+    Found
+    %strong= @news_trend.count
+    news in last tweets whith the term
+    %strong= @str_trend
   - @news_trend.each do |nt|
     %blockquote
       %h3= link_to nt.title, nt.url, :target => :blank

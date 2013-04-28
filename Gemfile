@@ -38,6 +38,7 @@ gem 'feedzirra'
 #geolocalization
 gem 'geocoder'
 gem 'geoplanet'
+gem 'gmaps4rails'
 
 # graph analysis
 gem 'rgl'

@@ -1,2 +1,4 @@
 %p
   = current_user.name if current_user.present?
+
+= gmaps({"map_options" => {"auto_adjust" => true, "auto_zoom" => false, "zoom" => 12 },"markers"     => {"data" => @json }})

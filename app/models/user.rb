@@ -5,6 +5,8 @@ class User
   geocoded_by :ip_address # can also be an IP address
   after_validation :geocode # auto-fetch coordinates
 
+  acts_as_gmappable :position => :coordinates_gmap, :process_geocoding => false
+
   # Include default devise modules. Others available are:
   # :token_authenticatable, :confirmable,
   # :lockable, :timeoutable and :omniauthable
@@ -13,6 +15,9 @@ class User
          :omniauthable,
          :omniauth_providers => [:twitter]
 
+  def coordinates_gmap
+    coordinates.try :reverse
+  end
 
   ## Database authenticatable
   field :email, :type => String
