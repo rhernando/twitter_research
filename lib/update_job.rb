@@ -8,7 +8,7 @@ module UpdateJob
   ## check news from sources and store tags
   def self.update_news
     # update feeds accesed more than 60 minutes
-    SourceFeeds.any_of({:last_access.lte => 60.minutes.ago}, {:last_access => nil}).each do |sf|
+    SourceFeeds.any_of({:last_access.lte => 240.minutes.ago}, {:last_access => nil}).each do |sf|
       feed = Feedzirra::Feed.fetch_and_parse(sf.feed_url)
       sf.last_access = Time.now
       sf.title = feed.title rescue nil
@@ -38,7 +38,7 @@ module UpdateJob
 
   end
 
-  MAX_ATTEMPTS = 3
+  MAX_ATTEMPTS = 5
 
   # http://www.ibm.com/developerworks/opensource/library/os-dataminingrubytwitter/
   # http://www.jstatsoft.org/v29/i04/paper
@@ -59,6 +59,7 @@ module UpdateJob
           user.save
           Rails.logger.info "Retrieved #{user.arr_followers.count} followers"
 
+          num_attempts = 0
           cursor = followers.next_cursor
           num_attempts = 0
         rescue Twitter::Error::TooManyRequests => error

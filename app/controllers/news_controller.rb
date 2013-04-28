@@ -12,8 +12,8 @@ class NewsController < ApplicationController
   end
 
   def trend
-    str_trend = params[:trend]
-    arr_trends = Twitter.search(str_trend).statuses
+    @str_trend = params[:trend]
+    arr_trends = Twitter.search(@str_trend).statuses
     @news_trend = []
 
     arr_trends.each do |tweet|

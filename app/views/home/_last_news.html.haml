@@ -20,9 +20,9 @@
 
         .star{:id => un.last_news.id, 'data-score' => score(current_user, un.last_news)}
       %small
-        = "#{un.feed_title} (#{un.last_news.source})"
+        = "#{un.feed_title}"
         %cite
           = un.total_score
           = "(#{un.last_news.date_publish})"
 
-      %p= un.last_news.lede
+      %p= raw un.last_news.lede

@@ -11,6 +11,8 @@ class UpdateScore < Jobs::Base
     User.all.each do |user|
       Rails.logger.info "Updating news for User user #{user.name}"
 
+      user.user_newses.delete_all
+
       LastNews.all.each do |ln|
         next if UserSources.where(:url => /#{ln.url}/, :user => user).first.present?
 
@@ -30,6 +32,7 @@ class UpdateScore < Jobs::Base
         end
 
         un.total_score = un.score + ((ln.date_publish || Date.yesterday) - Date.today).to_i
+        un.total_score *= 2 if ln.date_publish == Date.today
 
         un.save
 
