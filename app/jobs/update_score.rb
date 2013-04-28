@@ -31,7 +31,7 @@ class UpdateScore < Jobs::Base
           un.score += (u_score.rate - 3) * 2 if u_score.rate.present?
         end
 
-        un.total_score = un.score + ((ln.date_publish || Date.yesterday) - Date.today).to_i
+        un.total_score = un.score + ((ln.date_publish || Date.yesterday) - Date.yesterday).to_i unless (ln.date_publish.present? && ln.date_publish > Date.today)
         un.total_score *= 2 if ln.date_publish == Date.today
 
         un.save
