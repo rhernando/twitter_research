@@ -57,8 +57,41 @@ module Graphs
     nw_edges
   end
 
-  def self.r_network(user)
+  def self.names_network(nwa)
+    net_names = []
 
+    nwa.each do |e|
+      net_names << [TwitterUserData.find(e[0]).name, TwitterUserData.find(e[1]).name]
+    end
+
+    net_names
+  end
+
+  def self.r_network(net_names, username=nil)
+
+
+    # print to file
+    file = File.new('networkmatrix.txt', 'w')
+    net_names.each do |el|
+      file.puts el.join("|")
+    end
+    file.close
+
+    myr = RinRuby.new({:interactive => false, :echo => true})
+
+
+    myr.assign 'filename', "app/assets/images/graphs/#{(username || 'default')}.svg"
+    myr.eval "svg(filename);"
+
+    myr.eval <<EOF
+    library(igraph)
+
+    vnet = read.table("networkmatrix.txt", header = FALSE, sep='|' )
+    g = graph.data.frame(vnet, directed=TRUE)
+
+    svg(filename)
+    plot(g)
+EOF
   end
 
 end
