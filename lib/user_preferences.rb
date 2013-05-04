@@ -12,9 +12,16 @@ module UserPreferences
   ## background process that will retrieve all user tweets, searching for URLs
   ## for each URL, it requests the page content and call DBpedia Spotlight to annottate tags
   ## then it saves tags into user preferences
-  def self.load_timeline(user)
-    last_id = user.user_sourceses.last.try(:id_tweet)
+  def self.load_timeline(user, twitter_id=nil)
+    last_id = nil #user.user_sourceses.order_by([:id_tweet, :asc]).last.try(:id_tweet)
     tl = nil
+    idt = 9999999999999999999
+
+    #max_tweet =  (user.user_sourceses.order_by([:id_tweet, :asc]).last.try(:id_tweet) < idt)
+
+
+
+    twitter_id ||= user.uid.to_i
     begin
 
       num_attempts = 0
@@ -22,14 +29,21 @@ module UserPreferences
         num_attempts += 1
         # retrieving user tweets
         params = {:include_rts => true, :count => 800, :since_id => last_id}
-        tl = Twitter.user_timeline user.uid.to_i, params.delete_if { |k, v| v.blank? || k == :screen_name }
+        tl = Twitter.user_timeline twitter_id, params.delete_if { |k, v| v.blank? || k == :screen_name }
         if tl.present?
           last_id = tl.first.id
           tl.each do |tweet|
+            idt = tweet.id
             tweet.urls.each do |u|
               begin
-                us = UserSources.where(:id_tweet => tweet.id).first
-                insert_url(u, tweet, user) unless us.present?
+                if user.present?
+                  us = UserSources.where(:id_tweet => tweet.id).first
+                  insert_url(u, tweet, user) unless us.present?
+                else
+                  us = FriendsSource.where(:id_tweet => tweet.id).first
+                  return if us.present?
+                  insert_url(u, tweet, nil, twitter_id) unless us.present?
+                end
               rescue RuntimeError => e
                 Rails.logger.warn "La url #{u.expanded_url} no es accesible. #{e}"
               end
@@ -37,12 +51,20 @@ module UserPreferences
           end
         end
       rescue Twitter::Error::TooManyRequests => error
+        Rails.logger.warn 'rate limit. waiting.....'
         if num_attempts <= MAX_ATTEMPTS
           sleep error.rate_limit.reset_in
           retry
         else
           raise
         end
+      rescue Twitter::Error::ClientError => te
+        # This explicit rescue will work
+        puts te
+        puts 'waiting '
+        sleep 1000 #te.rate_limit.reset_in rescue retry
+        puts "Rescued from Twitter::Error::ClientError : #{te}"
+        retry
       end
     end while tl.present?
   end
@@ -50,11 +72,11 @@ module UserPreferences
   ## given a url, it retrieves tags and store them as user topics
   ## it also stores URL as a preferred source for the user
   def self.insert_url(url, tweet, user, friend_id = nil)
-    uri = URI.parse(url.expanded_url)
+    uri = URI.parse(url.try(:expanded_url) || url)
 
-    p url.expanded_url
+    p url.try(:expanded_url) || url
 
-    doc = Pismo::Document.new url.expanded_url rescue nil
+    doc = Pismo::Document.new url.try(:expanded_url) || url rescue nil
     return unless doc.present?
     entities = entities_from_document(doc)
 
@@ -65,17 +87,17 @@ module UserPreferences
 
     arr_ents += doc.keywords.map { |x| x.first if x.first.length > 3 }.compact rescue []
 
-    sf = SourceFeeds.find_or_create_by(:base_url => uri.host.downcase)
+    sf = SourceFeeds.find_or_create_by(:base_url => (uri.host.try(:downcase) || uri))
     if sf.feed_url.blank? && doc.feed.present?
       sf.feed_url = doc.feed
       sf.save
     end
 
     if friend_id.present?
-      us = FriendsSource.new(:url => url.expanded_url, :id_tweet => tweet.id, :source => uri.host.downcase, :tags => arr_ents, :user => user, :friend_id => friend_id)
+      us = FriendsSource.new(:url => url.try(:expanded_url) || url, :id_tweet => tweet.try(:id), :source => (uri.host.try(:downcase) || uri), :tags => arr_ents, :user => user, :friend_id => friend_id)
       us.save
     else
-      us = UserSources.new(:url => url.expanded_url, :id_tweet => tweet.id, :source => uri.host.downcase, :tags => arr_ents, :user => user)
+      us = UserSources.new(:url => url.expanded_url, :id_tweet => tweet.id, :source => (uri.host.try(:downcase) || uri), :tags => arr_ents, :user => user)
       us.save
     end
 
@@ -135,6 +157,10 @@ module UserPreferences
         else
           raise
         end
+      rescue Twitter::Error::ClientError => te
+        # This explicit rescue will work
+        puts "Rescued from Twitter::Error::ClientError : #{te}"
+        retry
       end
 
     end

@@ -12,6 +12,12 @@ ActiveSupport::Inflector.inflections do |inflect|
   inflect.irregular 'UserNews', 'UserNewses'
   inflect.irregular 'user_news', 'user_newses'
 
+  inflect.irregular 'FriendNews', 'FriendNewses'
+  inflect.irregular 'friend_news', 'friend_newses'
+
+  inflect.irregular 'TwitterUserData', 'TwitterUserData'
+  inflect.irregular 'twitter_user_data', 'twitter_user_data'
+
   inflect.uncountable %w( fish sheep )
 end
 #

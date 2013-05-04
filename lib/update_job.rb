@@ -38,7 +38,7 @@ module UpdateJob
 
   end
 
-  MAX_ATTEMPTS = 5
+  MAX_ATTEMPTS = 500
 
   # http://www.ibm.com/developerworks/opensource/library/os-dataminingrubytwitter/
   # http://www.jstatsoft.org/v29/i04/paper
@@ -71,6 +71,10 @@ module UpdateJob
           else
             raise
           end
+        rescue Twitter::Error::ClientError => te
+          # This explicit rescue will work
+          puts "Rescued from Twitter::Error::ClientError : #{te}"
+          retry
         end
       end
     end
@@ -103,6 +107,10 @@ module UpdateJob
           else
             raise
           end
+        rescue Twitter::Error::ClientError => te
+          # This explicit rescue will work
+          puts "Rescued from Twitter::Error::ClientError : #{te}"
+          retry
         end
       end
 
@@ -130,7 +138,7 @@ module UpdateJob
       Rails.logger.info "retrieved user #{f.name}"
 
       arr_follow |= [follower.id]
-      Rails.logger.info "ARRAY #{arr_follow}"
+      #Rails.logger.info "ARRAY #{arr_follow}"
     end
     arr_follow
   end

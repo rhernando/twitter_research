@@ -1,8 +1,12 @@
 class TwitterUserData
   include Mongoid::Document
+  include Mongoid::Timestamps
+
+  has_many :friend_newses
 
   field :id_twitter, :type => String
   field :name, :type => String
+  field :username, :type => String
 
   field :num_followers, :type => Integer
   field :num_friends, :type => Integer
@@ -17,6 +21,7 @@ class TwitterUserData
 
 
   index({ id_twitter: 1 }, { unique: true, name: "u_ id_twitter_index" })
+  index({ username: 1 }, { unique: true, name: "username_tud_index" })
 
 
 end

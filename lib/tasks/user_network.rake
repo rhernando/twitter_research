@@ -10,8 +10,6 @@ namespace :tweets do
     update_db = ENV['UPDATE'].present? && ENV['UPDATE'] == '1'
     user = User.find_by(:email => user_name)
 
-    Rails.logger.info "Updating network for user #{user.name}(#{user.email})"
-
     user_tw = TwitterUserData.where(:id_twitter => user.uid.to_i).first
     user_tw = TwitterUserData.new(:id_twitter => user.uid.to_i) if user_tw.blank?
 
