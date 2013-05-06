@@ -72,11 +72,11 @@ module UserPreferences
   ## given a url, it retrieves tags and store them as user topics
   ## it also stores URL as a preferred source for the user
   def self.insert_url(url, tweet, user, friend_id = nil)
-    uri = URI.parse(url.try(:expanded_url) || url)
+    uri = URI.parse((url.expanded_url rescue url)) rescue ''
 
-    p url.try(:expanded_url) || url
+    p ((url.expanded_url rescue url))
 
-    doc = Pismo::Document.new url.try(:expanded_url) || url rescue nil
+    doc = Pismo::Document.new((url.expanded_url rescue url)) rescue nil
     return unless doc.present?
     entities = entities_from_document(doc)
 
@@ -94,8 +94,12 @@ module UserPreferences
     end
 
     if friend_id.present?
-      us = FriendsSource.new(:url => url.try(:expanded_url) || url, :id_tweet => tweet.try(:id), :source => (uri.host.try(:downcase) || uri), :tags => arr_ents, :user => user, :friend_id => friend_id)
-      us.save
+      us = FriendsSource.where(:url => (url.expanded_url rescue url), :friend_id => friend_id).first
+      return if us.present?
+
+      us = FriendsSource.new(:url => (url.expanded_url rescue url), :id_tweet => tweet.try(:id), :source => (uri.host.try(:downcase) || uri), :tags => arr_ents, :user => user, :friend_id => friend_id)
+      us.save!
+
     else
       us = UserSources.new(:url => url.expanded_url, :id_tweet => tweet.id, :source => (uri.host.try(:downcase) || uri), :tags => arr_ents, :user => user)
       us.save

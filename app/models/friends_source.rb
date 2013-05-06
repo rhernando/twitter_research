@@ -1,7 +1,8 @@
 class FriendsSource
   include Mongoid::Document
+  include Mongoid::Timestamps
 
-  belongs_to :user
+  #belongs_to :user
 
   field :url, type: String
   field :source, type: String
@@ -10,7 +11,7 @@ class FriendsSource
 
   field :friend_id, type: Integer
 
-  index({ id_tweet: 1 }, { unique: true, name: "id_tweet_fs_index" })
+  index({ id_tweet: 1 }, { unique: false, name: "id_tweet_fs_index" })
   index({ friend_id: 1 }, { unique: false, name: "id_friend_fs_index" })
 
 end

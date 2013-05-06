@@ -6,6 +6,6 @@ class SourceFeeds
   field :title, type: String
 
 
-  index({ last_access: 1 }, { unique: true, name: "last_access_index" })
+  index({ last_access: 1 }, { unique: false, name: "last_access_index" })
 
 end

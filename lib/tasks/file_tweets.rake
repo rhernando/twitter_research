@@ -2,7 +2,9 @@ namespace :tweets do
   desc 'insert user tweets with URL from file'
 
   task :url_users => :environment do
-    f = File.new '/home/ruben/desarrollo/ws_ruby/twfiles/tweets', 'r'
+    f = File.new '/home/ruben/desarrollo/wsruby/twfiles/tweets', 'r'
+    fout = File.new '/home/ruben/desarrollo/wsruby/twfiles/tweets_unknown', 'w'
+
     while (line = f.gets)
       username = line.split(' ')[1]
       txt_tweet = line.split(' ')[2..-1].join('')
@@ -11,13 +13,16 @@ namespace :tweets do
 
 
 
-      next if tw_user.blank?
+      if tw_user.blank?
+        fout.puts line
+        next
+      end
 
       exp_tw = /https?:\/\/[\S]+/.match txt_tweet
       i = 0
-      while (url = exp_tw[i])
+      while exp_tw.present? && (url = exp_tw[i])
         i+=1
-        insert_url(url, nil, nil, tw_user.id_twitter)
+        UserPreferences.insert_url(url, nil, nil, tw_user.id_twitter)
 
       end
 
